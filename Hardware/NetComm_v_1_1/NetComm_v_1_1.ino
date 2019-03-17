@@ -41,7 +41,7 @@ void loop()
   //Serial.println(humid);
   //------OTHER-------
   photoRead = analogRead(A0);
-  Serial.println("temp:" + temp + "humid:" + humid + "light" + photoRead);
+  Serial.println(temp + ":" + humid + ":" + photoRead);
   delay(1000);
 }
 void releaseBeacon() {
