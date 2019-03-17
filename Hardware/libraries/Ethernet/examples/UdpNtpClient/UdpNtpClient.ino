@@ -1,22 +1,20 @@
 /*
 
- Udp NTP Client
+  Udp NTP Client
 
- Get the time from a Network Time Protocol (NTP) time server
- Demonstrates use of UDP sendPacket and ReceivePacket
- For more on NTP time servers and the messages needed to communicate with them,
- see http://en.wikipedia.org/wiki/Network_Time_Protocol
+  Get the time from a Network Time Protocol (NTP) time server
+  Demonstrates use of UDP sendPacket and ReceivePacket
+  For more on NTP time servers and the messages needed to communicate with them,
+  see http://en.wikipedia.org/wiki/Network_Time_Protocol
 
- created 4 Sep 2010
- by Michael Margolis
- modified 9 Apr 2012
- by Tom Igoe
- modified 02 Sept 2015
- by Arturo Guadalupi
+  created 4 Sep 2010
+  by Michael Margolis
+  modified 9 Apr 2012
+  by Tom Igoe
 
- This code is in the public domain.
+  This code is in the public domain.
 
- */
+*/
 
 #include <SPI.h>
 #include <Ethernet.h>
@@ -43,7 +41,7 @@ void setup() {
   // Open serial communications and wait for port to open:
   Serial.begin(9600);
   while (!Serial) {
-    ; // wait for serial port to connect. Needed for native USB port only
+    ; // wait for serial port to connect. Needed for Leonardo only
   }
 
 
@@ -66,8 +64,8 @@ void loop() {
     // We've received a packet, read the data from it
     Udp.read(packetBuffer, NTP_PACKET_SIZE); // read the packet into the buffer
 
-    // the timestamp starts at byte 40 of the received packet and is four bytes,
-    // or two words, long. First, extract the two words:
+    //the timestamp starts at byte 40 of the received packet and is four bytes,
+    // or two words, long. First, esxtract the two words:
 
     unsigned long highWord = word(packetBuffer[40], packetBuffer[41]);
     unsigned long lowWord = word(packetBuffer[42], packetBuffer[43]);
@@ -105,7 +103,6 @@ void loop() {
   }
   // wait ten seconds before asking for the time again
   delay(10000);
-  Ethernet.maintain();
 }
 
 // send an NTP request to the time server at the given address

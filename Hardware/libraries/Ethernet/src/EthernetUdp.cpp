@@ -118,12 +118,7 @@ size_t EthernetUDP::write(const uint8_t *buffer, size_t size)
 int EthernetUDP::parsePacket()
 {
   // discard any remaining bytes in the last packet
-  while (_remaining) {
-    // could this fail (loop endlessly) if _remaining > 0 and recv in read fails?
-    // should only occur if recv fails after telling us the data is there, lets
-    // hope the w5100 always behaves :)
-    read();
-  }
+  clear_remaining();
 
   if (recvAvailable(_sock) > 0)
   {
@@ -209,42 +204,20 @@ int EthernetUDP::peek()
   return b;
 }
 
+void EthernetUDP::clear_remaining()
+{
+  // could this fail (loop endlessly) if _remaining > 0 and recv in read fails?
+  // should only occur if recv fails after telling us the data is there, lets
+  // hope the w5100 always behaves :)
+
+  while (_remaining)
+  {
+    read();
+  }
+}
+
 void EthernetUDP::flush()
 {
-  // TODO: we should wait for TX buffer to be emptied
+  endPacket();  
 }
-
-/* Start EthernetUDP socket, listening at local port PORT */
-uint8_t EthernetUDP::beginMulticast(IPAddress ip, uint16_t port)
-{
-  if (_sock != MAX_SOCK_NUM)
-    return 0;
-
-  for (int i = 0; i < MAX_SOCK_NUM; i++) {
-    uint8_t s = W5100.readSnSR(i);
-    if (s == SnSR::CLOSED || s == SnSR::FIN_WAIT) {
-      _sock = i;
-      break;
-    }
-  }
-
-  if (_sock == MAX_SOCK_NUM)
-    return 0;
-
-  // Calculate MAC address from Multicast IP Address
-  byte mac[] = {  0x01, 0x00, 0x5E, 0x00, 0x00, 0x00 };
-
-  mac[3] = ip[1] & 0x7F;
-  mac[4] = ip[2];
-  mac[5] = ip[3];
-
-  W5100.writeSnDIPR(_sock, rawIPAddress(ip));   //239.255.0.1
-  W5100.writeSnDPORT(_sock, port);
-  W5100.writeSnDHAR(_sock,mac);
-
-  _remaining = 0;
-  socket(_sock, SnMR::UDP, port, SnMR::MULTI);
-  return 1;
-}
-
 

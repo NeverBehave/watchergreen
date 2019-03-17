@@ -1,18 +1,18 @@
 /*
   Web client
 
- This sketch connects to a website (http://www.google.com)
- using an Arduino Wiznet Ethernet shield.
+  This sketch connects to a website (http://www.google.com)
+  using an Arduino Wiznet Ethernet shield.
 
- Circuit:
- * Ethernet shield attached to pins 10, 11, 12, 13
+  Circuit:
+   Ethernet shield attached to pins 10, 11, 12, 13
 
- created 18 Dec 2009
- by David A. Mellis
- modified 9 Apr 2012
- by Tom Igoe, based on work by Adrian McEwen
+  created 18 Dec 2009
+  by David A. Mellis
+  modified 9 Apr 2012
+  by Tom Igoe, based on work by Adrian McEwen
 
- */
+*/
 
 #include <SPI.h>
 #include <Ethernet.h>
@@ -37,12 +37,13 @@ void setup() {
   // Open serial communications and wait for port to open:
   Serial.begin(9600);
   while (!Serial) {
-    ; // wait for serial port to connect. Needed for native USB port only
+    ; // wait for serial port to connect. Needed for Leonardo only
   }
 
   // start the Ethernet connection:
   if (Ethernet.begin(mac) == 0) {
     Serial.println("Failed to configure Ethernet using DHCP");
+    // no point in carrying on, so do nothing forevermore:
     // try to congifure using IP address instead of DHCP:
     Ethernet.begin(mac, ip);
   }
@@ -59,7 +60,7 @@ void setup() {
     client.println("Connection: close");
     client.println();
   } else {
-    // if you didn't get a connection to the server:
+    // kf you didn't get a connection to the server:
     Serial.println("connection failed");
   }
 }

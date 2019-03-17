@@ -55,44 +55,64 @@ void DNSClient::begin(const IPAddress& aDNSServer)
 }
 
 
-int DNSClient::inet_aton(const char* address, IPAddress& result)
+int DNSClient::inet_aton(const char* aIPAddrString, IPAddress& aResult)
 {
-    uint16_t acc = 0; // Accumulator
-    uint8_t dots = 0;
-
-    while (*address)
+    // See if we've been given a valid IP address
+    const char* p =aIPAddrString;
+    while (*p &&
+           ( (*p == '.') || (*p >= '0') || (*p <= '9') ))
     {
-        char c = *address++;
-        if (c >= '0' && c <= '9')
+        p++;
+    }
+
+    if (*p == '\0')
+    {
+        // It's looking promising, we haven't found any invalid characters
+        p = aIPAddrString;
+        int segment =0;
+        int segmentValue =0;
+        while (*p && (segment < 4))
         {
-            acc = acc * 10 + (c - '0');
-            if (acc > 255) {
-                // Value out of [0..255] range
-                return 0;
+            if (*p == '.')
+            {
+                // We've reached the end of a segment
+                if (segmentValue > 255)
+                {
+                    // You can't have IP address segments that don't fit in a byte
+                    return 0;
+                }
+                else
+                {
+                    aResult[segment] = (byte)segmentValue;
+                    segment++;
+                    segmentValue = 0;
+                }
             }
+            else
+            {
+                // Next digit
+                segmentValue = (segmentValue*10)+(*p - '0');
+            }
+            p++;
         }
-        else if (c == '.')
+        // We've reached the end of address, but there'll still be the last
+        // segment to deal with
+        if ((segmentValue > 255) || (segment > 3))
         {
-            if (dots == 3) {
-                // Too much dots (there must be 3 dots)
-                return 0;
-            }
-            result[dots++] = acc;
-            acc = 0;
+            // You can't have IP address segments that don't fit in a byte,
+            // or more than four segments
+            return 0;
         }
         else
         {
-            // Invalid char
-            return 0;
+            aResult[segment] = (byte)segmentValue;
+            return 1;
         }
     }
-
-    if (dots != 3) {
-        // Too few dots (there must be 3 dots)
+    else
+    {
         return 0;
     }
-    result[3] = acc;
-    return 1;
 }
 
 int DNSClient::getHostByName(const char* aHostname, IPAddress& aResult)
@@ -177,8 +197,7 @@ uint16_t DNSClient::BuildRequest(const char* aName)
 
     // FIXME We should also check that there's enough space available to write to, rather
     // FIXME than assume there's enough space (as the code does at present)
-    uint16_t _id = htons(iRequestId);
-    iUdp.write((uint8_t*)&_id, sizeof(_id));
+    iUdp.write((uint8_t*)&iRequestId, sizeof(iRequestId));
 
     twoByteBuffer = htons(QUERY_FLAG | OPCODE_STANDARD_QUERY | RECURSION_DESIRED_FLAG);
     iUdp.write((uint8_t*)&twoByteBuffer, sizeof(twoByteBuffer));
@@ -263,9 +282,12 @@ uint16_t DNSClient::ProcessResponse(uint16_t aTimeout, IPAddress& aAddress)
     }
     iUdp.read(header, DNS_HEADER_SIZE);
 
-    uint16_t header_flags = word(header[2], header[3]);
+    uint16_t staging; // Staging used to avoid type-punning warnings
+    memcpy(&staging, &header[2], sizeof(uint16_t));
+    uint16_t header_flags = htons(staging);
+    memcpy(&staging, &header[0], sizeof(uint16_t));
     // Check that it's a response to this request
-    if ( (iRequestId != word(header[0], header[1])) ||
+    if ( ( iRequestId != staging ) ||
         ((header_flags & QUERY_RESPONSE_MASK) != (uint16_t)RESPONSE_FLAG) )
     {
         // Mark the entire packet as read
@@ -282,7 +304,8 @@ uint16_t DNSClient::ProcessResponse(uint16_t aTimeout, IPAddress& aAddress)
     }
 
     // And make sure we've got (at least) one answer
-    uint16_t answerCount = word(header[6], header[7]);
+    memcpy(&staging, &header[6], sizeof(uint16_t));
+    uint16_t answerCount = htons(staging);
     if (answerCount == 0 )
     {
         // Mark the entire packet as read
@@ -291,7 +314,8 @@ uint16_t DNSClient::ProcessResponse(uint16_t aTimeout, IPAddress& aAddress)
     }
 
     // Skip over any questions
-    for (uint16_t i =0; i < word(header[4], header[5]); i++)
+    memcpy(&staging, &header[4], sizeof(uint16_t));
+    for (uint16_t i =0; i < htons(staging); i++)
     {
         // Skip over the name
         uint8_t len;

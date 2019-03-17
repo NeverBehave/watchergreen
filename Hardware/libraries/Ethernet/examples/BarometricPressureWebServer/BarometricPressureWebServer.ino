@@ -1,37 +1,40 @@
 /*
   SCP1000 Barometric Pressure Sensor Display
 
- Serves the output of a Barometric Pressure Sensor as a web page.
- Uses the SPI library. For details on the sensor, see:
- http://www.sparkfun.com/commerce/product_info.php?products_id=8161
+  Serves the output of a Barometric Pressure Sensor as a web page.
+  Uses the SPI library. For details on the sensor, see:
+  http://www.sparkfun.com/commerce/product_info.php?products_id=8161
+  http://www.vti.fi/en/support/obsolete_products/pressure_sensors/
 
- This sketch adapted from Nathan Seidle's SCP1000 example for PIC:
- http://www.sparkfun.com/datasheets/Sensors/SCP1000-Testing.zip
+  This sketch adapted from Nathan Seidle's SCP1000 example for PIC:
+  http://www.sparkfun.com/datasheets/Sensors/SCP1000-Testing.zip
 
- Circuit:
- SCP1000 sensor attached to pins 6,7, and 11 - 13:
- DRDY: pin 6
- CSB: pin 7
- MOSI: pin 11
- MISO: pin 12
- SCK: pin 13
+  Circuit:
+  SCP1000 sensor attached to pins 6,7, and 11 - 13:
+  DRDY: pin 6
+  CSB: pin 7
+  MOSI: pin 11
+  MISO: pin 12
+  SCK: pin 13
 
- created 31 July 2010
- by Tom Igoe
- */
+  created 31 July 2010
+  by Tom Igoe
+*/
 
 #include <Ethernet.h>
 // the sensor communicates using SPI, so include the library:
 #include <SPI.h>
 
 
-// assign a MAC address for the Ethernet controller.
+// assign a MAC address for the ethernet controller.
 // fill in your address here:
 byte mac[] = {
   0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED
 };
 // assign an IP address for the controller:
 IPAddress ip(192, 168, 1, 20);
+IPAddress gateway(192, 168, 1, 1);
+IPAddress subnet(255, 255, 255, 0);
 
 
 // Initialize the Ethernet server library
@@ -200,7 +203,7 @@ unsigned int readRegister(byte registerName, int numBytes) {
   // take the chip select low to select the device:
   digitalWrite(chipSelectPin, LOW);
   // send the device the register you want to read:
-  int command = SPI.transfer(registerName);
+  SPI.transfer(registerName);
   // send a value of 0 to read the first byte returned:
   inByte = SPI.transfer(0x00);
 

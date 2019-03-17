@@ -52,8 +52,6 @@
 
 #include "SD.h"
 
-namespace SDLib {
-
 // Used by `getNextPathComponent`
 #define MAX_COMPONENT_LEN 12 // What is max length?
 #define PATH_COMPONENT_BUFFER_LEN MAX_COMPONENT_LEN+1
@@ -119,7 +117,7 @@ bool getNextPathComponent(const char *path, unsigned int *p_offset,
 
 boolean walkPath(const char *filepath, SdFile& parentDir,
 		 boolean (*callback)(SdFile& parentDir,
-				     const char *filePathComponent,
+				     char *filePathComponent,
 				     boolean isLastComponent,
 				     void *object),
 		 void *object = NULL) {
@@ -232,8 +230,8 @@ boolean walkPath(const char *filepath, SdFile& parentDir,
 
  */
 
-boolean callback_pathExists(SdFile& parentDir, const char *filePathComponent, 
-			    boolean /* isLastComponent */, void * /* object */) {
+boolean callback_pathExists(SdFile& parentDir, char *filePathComponent, 
+			    boolean isLastComponent, void *object) {
   /*
 
     Callback used to determine if a file/directory exists in parent
@@ -243,6 +241,8 @@ boolean callback_pathExists(SdFile& parentDir, const char *filePathComponent,
 
   */
   SdFile child;
+  (void) isLastComponent;
+  (void) object;
 
   boolean exists = child.open(parentDir, filePathComponent, O_RDONLY);
   
@@ -255,7 +255,7 @@ boolean callback_pathExists(SdFile& parentDir, const char *filePathComponent,
 
 
 
-boolean callback_makeDirPath(SdFile& parentDir, const char *filePathComponent, 
+boolean callback_makeDirPath(SdFile& parentDir, char *filePathComponent, 
 			     boolean isLastComponent, void *object) {
   /*
 
@@ -310,16 +310,19 @@ boolean callback_openPath(SdFile& parentDir, char *filePathComponent,
 
 
 
-boolean callback_remove(SdFile& parentDir, const char *filePathComponent, 
-			boolean isLastComponent, void * /* object */) {
+boolean callback_remove(SdFile& parentDir, char *filePathComponent, 
+			boolean isLastComponent, void *object) {
+  (void) object;
+
   if (isLastComponent) {
     return SdFile::remove(parentDir, filePathComponent);
   }
   return true;
 }
 
-boolean callback_rmdir(SdFile& parentDir, const char *filePathComponent, 
-			boolean isLastComponent, void * /* object */) {
+boolean callback_rmdir(SdFile& parentDir, char *filePathComponent, 
+			boolean isLastComponent, void *object) {
+  (void) object;
   if (isLastComponent) {
     SdFile f;
     if (!f.open(parentDir, filePathComponent, O_READ)) return false;
@@ -334,7 +337,7 @@ boolean callback_rmdir(SdFile& parentDir, const char *filePathComponent,
 
 
 
-boolean SDClass::begin(uint8_t csPin) {
+boolean SDClass::begin(uint8_t csPin, uint32_t speed) {
   /*
 
     Performs the initialisation required by the sdfatlib library.
@@ -342,14 +345,7 @@ boolean SDClass::begin(uint8_t csPin) {
     Return true if initialization succeeds, false otherwise.
 
    */
-  return card.init(SPI_HALF_SPEED, csPin) &&
-         volume.init(card) &&
-         root.openRoot(volume);
-}
-
-boolean SDClass::begin(uint32_t clock, uint8_t csPin) {
-  return card.init(SPI_HALF_SPEED, csPin) &&
-         card.setSpiClock(clock) &&
+  return card.init(speed, csPin) &&
          volume.init(card) &&
          root.openRoot(volume);
 }
@@ -620,6 +616,6 @@ void File::rewindDirectory(void) {
     _file->rewind();
 }
 
+#if !defined(NO_GLOBAL_INSTANCES) && !defined(NO_GLOBAL_SD)
 SDClass SD;
-
-};
+#endif
