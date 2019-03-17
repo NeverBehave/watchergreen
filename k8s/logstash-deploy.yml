@@ -1,0 +1,31 @@
+kind: Deployment
+apiVersion: extensions/v1beta1
+metadata:
+  name: logstash
+spec:
+  template:
+    metadata:
+      labels:
+        app: logstash
+    spec:
+      hostname: logger
+      containers:
+      - name: logstash
+        ports:
+          - containerPort: 8080
+            name: http
+          - containerPort: 9600
+            name: logstash
+        image: docker.elastic.co/logstash/logstash:6.6.2
+        volumeMounts:
+        - name: logstash-volumn
+          mountPath: /usr/share/logstash/pipeline/
+        command:
+        - logstash
+      volumes:
+      - name: logstash-volumn
+        configMap:
+          name: logstash-data
+          items:
+          - key: logstash.yml
+            path: logstash.yml

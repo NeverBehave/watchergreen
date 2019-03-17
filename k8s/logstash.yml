@@ -1,0 +1,14 @@
+input {
+  http {
+    port => 8080
+  }
+}
+
+output {
+  elasticsearch { 
+        hosts => ["es-kibana-demo.default.svc:9200"] 
+        user => admin
+        password => "admin@secret"
+  }
+  stdout { codec => rubydebug }
+}
