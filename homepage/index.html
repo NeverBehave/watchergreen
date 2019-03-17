@@ -34,7 +34,7 @@
 								<li><a href="#work">Challenges</a></li>
 								<li><a href="#about">Solutions</a></li>
 								<!--<li><a href="#data">Data</a></li>-->
-								<li><a href="#contact">Contact</a></li>
+								<li><a href="#humans">Humans</a></li>
 								<!--<li><a href="#elements">Elements</a></li>-->
 							</ul>
 						</nav>
@@ -59,7 +59,7 @@
 								<p>A BALANCE BETWEEN SUSTAINABILITY AND SCALABILITY</p>
 								<p>The forests are, simply put, too large. To cover vast landmass of forests with our detectors, detectors are required to be cheap enough for mass production. On the other hand, we need to scale down natural impacts as much as possible, meaning that recovering of older detectors is a must.</p>
 								<p>
-								The forests also differ. Although solar panel works well to add to the longevity of a detector, some forests are so dense that obtaining enough sunlight is almost impossible. This forces us to use batteries which requires regular recharging.
+								The forests also differ. Although solar panel works well to add to the longevity of a detector, some forests are so dense that obtaining enough sunlight is almost impossible. This forces us to use batteries which requires regular recharging.</p><p>
 								Modularity thus became one of our main focuses, hence our <a href="#about">solution</a>.
 								</p>
 							</article>
@@ -76,18 +76,21 @@
 								The hardware and software work together to help us better understand the forests.</p>
 								<span class="image main"><img src="images/pic03.jpg" alt="" /></span><p>
 								Hardware are the senses of Watcher Green. The temperature module, the moisture module, the tree humidity module, and the solar module: all are options to choose from. A study but easy-to-remove outer shell protects the vulnerable insides from the weather, with downward-facing slits allowing for only air. </p><p>
-								Data collected by the sensors is transmitted through internet to the Watcher Green software, where it is analyzed and presented intuitively. We can see how temperature changes. We can see what combination of factors lead to most forest fires. With the raw data from our sensors and accessible public data, we can get to almost anywhere.
+								Data collected by the sensors is transmitted through the cloud to ElasticSearch, where it is analyzed and presented intuitively by Kibana. Using Google Kubernetes Engine for processing power, we can see how factors like temperature and humidity changes. From there we can further analyze what combination of factors lead to most wildfires. With the raw data from our sensors and accessible public data, we can get to almost anywhere.
 								</p>
 							</article>
 
-						<!-- Data >
-							<article id="data">
-								<h2 class="major">Data</h2>
-								<p>FAITHFUL WATCHERS</p>
+						<!-- Data -->
+							<article id="humans">
+								<h2 class="major">Humans</h2>
+								<p>TALKING TO MOTHER NATURE VIA CLOUD</p><p>
+								Watcher Green is designed especially for forest rangers, providing them with data to navigate the forest and locate abnormalities more efficiently.</p>
+								<span class="image main"><img src="images/pic04.jpg" alt="" style="width:70%; margin:auto"/></span><p>
+								We designed the Watcher Green terminal as a mobile application, as forest rangers will be carrying them with their journey. In addition to detailed status of single detectors, the mobile app allows for access to Kibana so that users will have an understanding of the situation as well.</p>
 								
-							</article>-->
+							</article>
 
-						<!-- Contact -->
+						<!-- Contact >
 							<article id="contact">
 								<h2 class="major">Contact</h2>
 								<form method="post" action="#">
@@ -116,7 +119,7 @@
 									<li><a href="#" class="icon fa-instagram"><span class="label">Instagram</span></a></li>
 									<li><a href="#" class="icon fa-github"><span class="label">GitHub</span></a></li>
 								</ul>
-							</article>
+							</article-->
 
 						<!-- Elements -->
 							<article id="elements">
